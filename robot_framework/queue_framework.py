@@ -1,4 +1,7 @@
-"""This module is the primary module of the robot framework. It collects the functionality of the rest of the framework."""
+"""
+This module is the primary module of the robot framework.
+It collects the functionality of the rest of the framework.
+"""
 
 # This module is not meant to exist next to linear_framework.py in production:
 # pylint: disable=duplicate-code
