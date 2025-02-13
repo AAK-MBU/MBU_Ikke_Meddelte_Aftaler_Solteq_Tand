@@ -7,7 +7,7 @@ raise NotImplementedError("Remember to choose a framework to use.")
 #   Load OrchestratorConnection here with args
 #   Run one of two processes based on args
 #       1.  Upload queue
-#           Looks into sql database and checks which patients should be processed
+#           Looks into sql database (or UI "aftalebog") and checks which patients should be processed
 #           Uploads those patients to the Orchestrator database
 #           (Probably a linear framework)
 #       2.  Handle queue
