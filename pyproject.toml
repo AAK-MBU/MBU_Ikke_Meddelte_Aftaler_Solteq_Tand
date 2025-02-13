@@ -18,6 +18,7 @@ classifiers = [
 dependencies = [
     "mbu-dev-shared-components>=0.3.0",
     "OpenOrchestrator == 1.*",
+    "pandas>=2.2.3",
     "Pillow == 10.*",
 ]
 

@@ -6,13 +6,19 @@
 
 # import uiautomation as auto
 
+import os
+import pyodbc
+
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from OpenOrchestrator.database.queues import QueueElement
 
-from mbu_dev_shared_components.solteqtand import app_handler, db_handler
+from mbu_dev_shared_components.solteqtand import app_handler
+from mbu_dev_shared_components.solteqtand.app_handler import ManualProcessingRequiredError
+
+import pandas as pd  # For structuring found appointments as data
 
 from robot_framework.config import APP_PATH
-from robot_framework.secrets import SOLTEQTAND_USERNAME, SOLTEQTAND_PASSWORD, SSN
+from robot_framework.mysecrets import SOLTEQTAND_USERNAME, SOLTEQTAND_PASSWORD, SSN
 
 
 # pylint: disable-next=unused-argument
@@ -29,14 +35,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     if process_arg == "get_queue_elements":
         # This process can possibly be handled through the Solteq SQL database
         # Here the relevant ssn's are collected and uploaded as queue elements to OpenOrchestrator
-        solteq_db = db_handler.SolteqTandDatabase(
-            conn_str='',
-            ssn=None  # Getting the initial list of patients with "ikke meddelte aftaler" has no specific SSN
-        )
-        solteq_db
-        # raw_list = solteq_db.check_if_booking_exists(
-
-        # )  # Test this on remote desktop
+        pass
 
     if process_arg == "handle_queue_elements":
         # This process runs in the application window
@@ -54,6 +53,12 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
         # Login to Solteq Tand
         solteq_app.login()
 
+        # Set queue variables for SQL
+        nameVar = 'Name from queue element'
+        cprVar = f'{SSN}'
+        appointmentTypeVar = ''
+        descriptionVar = ''
+
         # Find the patient
         solteq_app.open_patient(SSN)
 
@@ -61,22 +66,85 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
 
         # Get list of appointments
         appointments = solteq_app.get_list_of_appointments()
+        appointments_df = pd.DataFrame(appointments)
+        appointments_df['Starttid'] = pd.to_datetime(
+            appointments_df['Starttid'],
+            format='%d-%m-%Y %H:%M')
+        appointments_df.sort_values(
+            by='Starttid',
+            ascending=True,
+            inplace=True
+        )
+
+        print(appointments_df[['Starttid', 'Status', 'Klinik']])
 
         # Here to check if there is an "OR aftale meddelt".
         # if so: close and put on manuel list
+        try:
+            if "Aftale meddelt" in appointments["Status"]:
+                print("Should not handle this person")
+                descriptionVar = '"OR aftale meddelt" fundet'
+                raise ManualProcessingRequiredError
+            try:
+                first_ikke_meddelt = appointments_df[
+                    (
+                        (appointments_df['Status'] == "Ikke meddelt aftale") &
+                        (appointments_df['Klinik'] == "121"))
+                ].index[0]
+                appointment_control = appointments["controls"][first_ikke_meddelt]
 
-        solteq_app.change_appointment_status(
-            appointment_control=appointments['controls'][0],
-            set_status='Afbud OK'
-        )
+                if "Ikke meddelt aftale" in appointments["Status"]:
+                    print("Handling this person")
+                    try:
+                        solteq_app.change_appointment_status(
+                            appointment_control=appointment_control,
+                            set_status='Afbud OK',
+                            send_msg=True
+                        )
+                    except ManualProcessingRequiredError as exc:
+                        descriptionVar = 'Fejl ved ændring af status'
+                        raise ManualProcessingRequiredError from exc
+            except IndexError as e:
+                print(e)
+                print("No 'Ikke meddelt aftale' found")
+                descriptionVar = 'Ingen "Ikke meddelt aftale" fundet'
+                raise ManualProcessingRequiredError from e
+        except ManualProcessingRequiredError:
+            print("[Todo: Add patient to manual list]")
+            rpa_conn_string = os.getenv('DbConnectionStringTest')
+            rpa_conn = pyodbc.connect(rpa_conn_string)
+            cursor = rpa_conn.cursor()
 
+            try:
+                query = """
+                    USE [RPA]
+
+                    INSERT INTO [rpa].[MBU006IkkeMeddelteAftaler]
+                        (Name,
+                         CPR,
+                         AppointmentType,
+                         Description,
+                         OrchestratorTransactionNumber,
+                         OrchestratorReference)
+                    VALUES
+                        (?, ?, ?, ?, ?, ?)
+                """
+                cursor.execute(
+                    query,
+                    (
+                        nameVar,
+                        cprVar,
+                        appointmentTypeVar,
+                        descriptionVar,
+                        '',
+                        ''
+                    ))
+                rpa_conn.commit()
+            except pyodbc.Error as e:
+                print(e)
+            finally:
+                rpa_conn.close()
         print("")
-
-        if "OR aftale meddelt" in appointments["Status"]:
-            print("Should not handle this person")
-        else:
-            if "Aftale ikke meddelt" in appointments["Status"]:
-                print("Should handle this person")
 
 
 if __name__ == "__main__":
