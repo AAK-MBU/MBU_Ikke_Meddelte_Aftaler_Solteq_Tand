@@ -33,7 +33,8 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     process_arg = "handle_queue_elements"
 
     if process_arg == "get_queue_elements":
-        # This process can possibly be handled through the Solteq SQL database
+        # This process can possibly be handled through the Solteq SQL database,
+        # though it's difficult to find the booking table that matches "Aftalebog" info from UI
         # Here the relevant ssn's are collected and uploaded as queue elements to OpenOrchestrator
         pass
 
@@ -45,13 +46,13 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
             app_path=APP_PATH,
             username=SOLTEQTAND_USERNAME,
             password=SOLTEQTAND_PASSWORD
-        )
+        )  # Could be stored in OpenOrchestrator possibly
 
         # Open Solteq Tand # Should be in initialization.py
-        solteq_app.start_application()
+        solteq_app.start_application()  # Should be in initalize.py eventually
 
         # Login to Solteq Tand
-        solteq_app.login()
+        solteq_app.login()  # Should be in initalize.py eventually
 
         # Set queue variables for SQL
         nameVar = 'Name from queue element'
