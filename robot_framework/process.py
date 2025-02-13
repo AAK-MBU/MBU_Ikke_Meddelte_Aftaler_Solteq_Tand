@@ -81,7 +81,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
         # Here to check if there is an "OR aftale meddelt".
         # if so: close and put on manuel list
         try:
-            if "Aftale meddelt" in appointments["Status"]:
+            if "OR aftale meddelt" in appointments["Status"]:
                 print("Should not handle this person")
                 descriptionVar = '"OR aftale meddelt" fundet'
                 raise ManualProcessingRequiredError
