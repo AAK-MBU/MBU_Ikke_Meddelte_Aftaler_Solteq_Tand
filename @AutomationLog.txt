@@ -1,0 +1,1 @@
+2025-02-18 10:27:00.149 app_handler.py[274] check_matching_ssn -> 2025-02-18 14:14:46.710 app_handler.py[672] close_patient_window -> 2025-02-18 15:14:47.652 app_handler.py[720] close_patient_window -> 

@@ -8,48 +8,30 @@ from mbu_dev_shared_components.solteqtand.app_handler import SolteqTandApp
 from robot_framework.config import APP_PATH
 from robot_framework.mysecrets import SOLTEQTAND_USERNAME, SOLTEQTAND_PASSWORD
 
-def reset(orchestrator_connection: OrchestratorConnection, solteq_app: SolteqTandApp = None) -> None:
+
+def reset(orchestrator_connection: OrchestratorConnection) -> None:
     """Clean up, close/kill all programs and start them again. """
     # orchestrator_connection.log_trace("Resetting.")
 
-    clean_up(orchestrator_connection, solteq_app)
-    close_all(orchestrator_connection, solteq_app)
+    clean_up(orchestrator_connection)
+    close_all(orchestrator_connection)
     kill_all(orchestrator_connection)
-    solteq_app = open_all(orchestrator_connection)
-    return solteq_app
+    open_all(orchestrator_connection)
 
 
-def clean_up(orchestrator_connection: OrchestratorConnection,
-             solteq_app: SolteqTandApp = None) -> None:
+def clean_up(orchestrator_connection: OrchestratorConnection) -> None:
     """Do any cleanup needed to leave a blank slate."""
     # orchestrator_connection.log_trace("Doing cleanup.")
-    # if solteq_app:
-    #     try:
-    #         print("Trying to close patient window")
-    #         solteq_app.close_patient_window()
-    #         print("Patient window might be closed")
-    #         import time
-    #         time.sleep(2)
-    #     except Exception as e:
-    #         print(e)
-    #         pass
+    pass
 
 
-def close_all(orchestrator_connection: OrchestratorConnection,
-             solteq_app: SolteqTandApp = None) -> None:
+def close_all(orchestrator_connection: OrchestratorConnection) -> None:
     """Gracefully close all applications used by the robot."""
     # orchestrator_connection.log_trace("Closing all applications.")
-    # if solteq_app:
-    #     try:
-    #         print("Trying to close app")
-    #         solteq_app.close_solteq_tand()
-    #         print("App might be closed")
-    #         import time
-    #         time.sleep(2)
-    #     except Exception as e:
-    #         print(e)
-    #         pass
-
+    if hasattr(orchestrator_connection, "app"):
+        if isinstance(orchestrator_connection.app, SolteqTandApp):
+            orchestrator_connection.app.close_solteq_tand()
+            print("Lukkede solteq")
 
 def kill_all(orchestrator_connection: OrchestratorConnection,
              solteq_app: SolteqTandApp = None) -> None:
@@ -69,4 +51,4 @@ def open_all(orchestrator_connection: OrchestratorConnection) -> SolteqTandApp:
     solteq_app.start_application()
     solteq_app.login()
 
-    return solteq_app
+    orchestrator_connection.app = solteq_app

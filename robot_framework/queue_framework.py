@@ -19,6 +19,9 @@ from robot_framework import config
 
 from robot_framework.mysecrets import SSN
 
+from mbu_dev_shared_components.solteqtand.app_handler import SolteqTandApp
+
+
 
 def main():
     """The entry point for the framework. Should be called as the first thing when running the robot."""
@@ -33,7 +36,7 @@ def main():
         connection_string="",
         crypto_key="",
         process_arguments=""
-    )    
+    )
 
     queue_element = None
     error_count = 0
@@ -41,13 +44,15 @@ def main():
     # Retry loop
     for _ in range(config.MAX_RETRY_COUNT):
         try:
-            solteq_app = reset.reset(orchestrator_connection)
+            reset.reset(orchestrator_connection)
+            # orchestrator_connection.log_trace("Opening Solteq Tand")
 
             # Queue loop
             while task_count < config.MAX_TASK_COUNT:
+                # orchestrator_connection.log_trace(f"Processing queue element #{task_count}")
                 task_count += 1
                 # queue_element = orchestrator_connection.get_next_queue_element(config.QUEUE_NAME)
-                if task_count <= 2:
+                if task_count <= 1:
                     queue_element = QueueElement(
                         data={'SSN': SSN, 'Name': 'Test Navnesen'},
                         id="001_TEST_ID"
@@ -61,7 +66,8 @@ def main():
                     break  # Break queue loop
 
                 try:
-                    process.process(orchestrator_connection, queue_element, solteq_app)
+                    print("Opening journal")
+                    process.process(orchestrator_connection, queue_element)
                     # orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
 
                 except BusinessError as error:
@@ -77,9 +83,9 @@ def main():
             print(error)
             print("")
 
-    reset.clean_up(orchestrator_connection, solteq_app=solteq_app)
-    reset.close_all(orchestrator_connection, solteq_app=solteq_app)
-    reset.kill_all(orchestrator_connection, solteq_app=solteq_app)
+    reset.clean_up(orchestrator_connection)
+    reset.close_all(orchestrator_connection)
+    reset.kill_all(orchestrator_connection)
 
     if config.FAIL_ROBOT_ON_TOO_MANY_ERRORS and error_count == config.MAX_RETRY_COUNT:
         raise RuntimeError("Process failed too many times.")
