@@ -5,6 +5,7 @@ from OpenOrchestrator.database.queues import QueueElement
 from mbu_dev_shared_components.solteqtand.app_handler import SolteqTandApp
 
 from robot_framework.subprocesses.handle_queue import process_queue_element
+from robot_framework.subprocesses.generate_queue import generate_queue
 
 
 # pylint: disable-next=unused-argument
@@ -25,8 +26,11 @@ def process(
         # This process can possibly be handled through the Solteq SQL database,
         # though it's difficult to find the booking table that matches "Aftalebog" info from UI
         # Here the relevant ssn's are collected and uploaded as queue elements to OpenOrchestrator
+        app = orchestrator_connection.app
+
         generate_queue(
-            orchestrator_connection=orchestrator_connection
+            orchestrator_connection=orchestrator_connection,
+            solteq_app=app
         )
 
     if process_arg == "handle_queue_elements":
@@ -38,7 +42,7 @@ def process(
         app = orchestrator_connection.app
 
         process_queue_element(
-            orcestrator_connection=orchestrator_connection,
+            orchestrator_connection=orchestrator_connection,
             queue_element=queue_element,
             solteq_app=app
         )

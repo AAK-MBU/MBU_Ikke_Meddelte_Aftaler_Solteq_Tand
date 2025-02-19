@@ -2,11 +2,9 @@
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
-from mbu_dev_shared_components.solteqtand import app_handler
 from mbu_dev_shared_components.solteqtand.app_handler import SolteqTandApp
 
 from robot_framework.config import APP_PATH
-from robot_framework.mysecrets import SOLTEQTAND_USERNAME, SOLTEQTAND_PASSWORD
 
 
 def reset(orchestrator_connection: OrchestratorConnection) -> None:
@@ -21,8 +19,7 @@ def reset(orchestrator_connection: OrchestratorConnection) -> None:
 
 def clean_up(orchestrator_connection: OrchestratorConnection) -> None:
     """Do any cleanup needed to leave a blank slate."""
-    # orchestrator_connection.log_trace("Doing cleanup.")
-    pass
+    orchestrator_connection.log_trace("Doing cleanup.")
 
 
 def close_all(orchestrator_connection: OrchestratorConnection) -> None:
@@ -31,21 +28,23 @@ def close_all(orchestrator_connection: OrchestratorConnection) -> None:
     if hasattr(orchestrator_connection, "app"):
         if isinstance(orchestrator_connection.app, SolteqTandApp):
             orchestrator_connection.app.close_solteq_tand()
-            print("Lukkede solteq")
+            orchestrator_connection.log_trace("Lukkede solteq")
 
-def kill_all(orchestrator_connection: OrchestratorConnection,
-             solteq_app: SolteqTandApp = None) -> None:
+
+def kill_all(orchestrator_connection: OrchestratorConnection) -> None:
     """Forcefully close all applications used by the robot."""
-    # orchestrator_connection.log_trace("Killing all applications.")
+    orchestrator_connection.log_trace("Killing all applications.")
 
 
 def open_all(orchestrator_connection: OrchestratorConnection) -> SolteqTandApp:
     """Open all programs used by the robot."""
-    # orchestrator_connection.log_trace("Opening all applications.")
+    orchestrator_connection.log_trace("Opening all applications.")
+    creds = orchestrator_connection.get_credential("solteq_tand_svcrpambu001")
+
     solteq_app = SolteqTandApp(
         app_path=APP_PATH,
-        username=SOLTEQTAND_USERNAME,
-        password=SOLTEQTAND_PASSWORD
+        username=creds.username,
+        password=creds.password
     )
 
     solteq_app.start_application()

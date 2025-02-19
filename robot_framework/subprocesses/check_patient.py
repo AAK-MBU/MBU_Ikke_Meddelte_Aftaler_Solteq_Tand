@@ -5,6 +5,8 @@ import pandas as pd
 
 import uiautomation as auto
 
+from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
+
 from mbu_dev_shared_components.solteqtand.app_handler import ManualProcessingRequiredError, NotMatchingError, SolteqTandApp
 
 
@@ -21,20 +23,28 @@ class ORAppointmentFoundError(Exception):
 
 
 def check_patient(
+        orchestrator_connection: OrchestratorConnection,
         solteq_app: SolteqTandApp,
         SSN: str
 ) -> auto.Control:
     appointment_control = None
-    appointments = check_or_aftale_meddelt(solteq_app, return_dict=True)
-    print("Ingen 'OR aftale meddelt' fundet")
-    if not check_age_under_18(SSN):
-        print("Patienten er over 18. Fjerner ekstra modtagere af beskeder")
+    appointments = check_or_aftale_meddelt(
+        orchestrator_connection=orchestrator_connection,
+        solteq_app=solteq_app,
+        return_dict=True)
+    orchestrator_connection.log_trace("Ingen 'OR aftale meddelt' fundet")
+    if not check_age_under_18(
+        orchestrator_connection=orchestrator_connection,
+        SSN=SSN
+    ):
+        orchestrator_connection.log_trace("Patienten er over 18. Fjerner ekstra modtagere af beskeder")
         solteq_app.set_extra_recipients(False)
     # Find first ikke_meddelt_aftale
     appointment_control = select_first_appointment(
+        orchestrator_connection=orchestrator_connection,
         appointments=appointments,
         appointment_to_select="Ikke meddelt aftale"
-    )  
+    )
 
     if appointment_control:
         return appointment_control
@@ -43,13 +53,13 @@ def check_patient(
 
 
 def select_first_appointment(
+        orchestrator_connection: OrchestratorConnection,
         appointments: dict,
         appointment_to_select: str
 ):
     """
     Searches for appointment in sorted dataframe.
     Raises NoAppointmentFoundError if appointment type cannot be found"""
-    print("")
     try:
         appointments_df = appointments['dataframe']
         first_ikke_meddelt = appointments_df[
@@ -61,16 +71,17 @@ def select_first_appointment(
 
         return appointment_control
     except IndexError as e:
-        print(f"No {appointment_to_select} found")
+        orchestrator_connection.log_error(f"Ingen {appointment_to_select} found")
         raise NoAppointmentFoundError from e
 
 
 def check_or_aftale_meddelt(
+        orchestrator_connection: OrchestratorConnection,
         solteq_app: SolteqTandApp,
         return_dict: bool = False
 ):
     # Get list of appointments
-    print("Tjekker om der er en OR aftale meddelt")
+    orchestrator_connection.log_trace("Tjekker om der er en OR aftale meddelt")
     appointments = solteq_app.get_list_of_appointments()
     # Wrap code below in function appointments_as_df(self,sort: str | None = None)
     appointments_df = pd.DataFrame(appointments)  # As dataframe
@@ -85,16 +96,18 @@ def check_or_aftale_meddelt(
     appointments['dataframe'] = appointments_df
 
     if "OR Aftale meddelt" in appointments["Status"]:
-        print("'OR aftale meddelt' fundet")
+        orchestrator_connection.log_trace("'OR aftale meddelt' fundet")
         raise ORAppointmentFoundError
 
     if return_dict:
         return appointments
 
 
-def check_age_under_18(SSN: str):
+def check_age_under_18(
+        orchestrator_connection: OrchestratorConnection,        
+        SSN: str):
     """Function to check age of inputted SSN. Return true if under 18"""
-    print("Tjekker om patienten er under 18")
+    orchestrator_connection.log_trace("Tjekker om patienten er under 18")
     # Extract the birthdate part (DDMMYY) from the input string (first 6 characters)
     birthdate = SSN[:6]
     
