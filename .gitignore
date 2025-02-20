@@ -167,3 +167,4 @@ cython_debug/
 # credentials
 *secrets.py
 *statuscodes.py
+*AutomationLog.txt

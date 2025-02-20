@@ -30,6 +30,7 @@ def main():
     sys.excepthook = log_exception(orchestrator_connection=None)
 
     orchestrator_connection.log_trace("Robot Framework started.")
+    # Initialize handles generating the queue
     initialize.initialize(orchestrator_connection)
 
     queue_element = None
