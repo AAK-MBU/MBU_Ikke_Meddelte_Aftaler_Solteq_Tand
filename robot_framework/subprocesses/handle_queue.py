@@ -1,21 +1,30 @@
 """Handles queue elements"""
+
 import json
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from OpenOrchestrator.database.queues import QueueElement
 
-from mbu_dev_shared_components.solteqtand.app_handler import ManualProcessingRequiredError, NotMatchingError, PatientNotFoundError
+from mbu_dev_shared_components.solteqtand.app_handler import (
+    ManualProcessingRequiredError,
+    NotMatchingError,
+    PatientNotFoundError,
+)
 from mbu_dev_shared_components.solteqtand.app_handler import SolteqTandApp
 
 from robot_framework.exceptions import BusinessError
-from robot_framework.subprocesses.check_patient import check_patient, ORAppointmentFoundError, NoAppointmentFoundError
+from robot_framework.subprocesses.check_patient import (
+    check_patient,
+    ORAppointmentFoundError,
+    NoAppointmentFoundError,
+)
 from robot_framework.subprocesses.call_database import insert_manual_list
 
 
 def process_queue_element(
-        orchestrator_connection: OrchestratorConnection,
-        queue_element: QueueElement,
-        solteq_app: SolteqTandApp
+    orchestrator_connection: OrchestratorConnection,
+    queue_element: QueueElement,
+    solteq_app: SolteqTandApp,
 ):
     """
     Function to process queue elements in Ikke meddelte aftaler.
@@ -24,15 +33,15 @@ def process_queue_element(
     """
     queue_element.data = json.loads(queue_element.data)
     sql_info = {
-        'name_var': queue_element.data['Name'],
-        'cpr_var': queue_element.data['SSN'],
-        'orchestrator_reference_var': queue_element.id,
-        'appointment_type_var': '',
-        'description_var': ''
+        "name_var": queue_element.data["Navn"],
+        "cpr_var": queue_element.data["Cpr"],
+        "orchestrator_reference_var": queue_element.id,
+        "appointment_type_var": "",
+        "description_var": "",
     }
 
     # Find the patient
-    SSN = queue_element.data['SSN']
+    SSN = queue_element.data["Cpr"].replace("-", "")
     orchestrator_connection.log_trace("Indtaster CPR og laver opslag")
     try:
         solteq_app.open_patient(SSN)
@@ -42,7 +51,9 @@ def process_queue_element(
         orchestrator_connection.log_error(str(e))
         raise BusinessError from e
     except Exception as e:
-        orchestrator_connection.log_error("Der skete en fejl da stamkortvinduet ikke blev åbnet som forventet")
+        orchestrator_connection.log_error(
+            "Der skete en fejl da stamkortvinduet ikke blev åbnet som forventet"
+        )
         raise SystemError from e
     patient_window = solteq_app.app_window
 
@@ -53,7 +64,7 @@ def process_queue_element(
             appointment_control = check_patient(
                 orchestrator_connection=orchestrator_connection,
                 solteq_app=solteq_app,
-                SSN=SSN
+                SSN=SSN,
             )
             solteq_app.change_appointment_status(
                 appointment_control=appointment_control,
@@ -61,16 +72,18 @@ def process_queue_element(
                 send_msg=True
             )
         except NotMatchingError as e:
-            sql_info['description_var'] = "Indtastet CPR matcher ikke CPR fra den åbnede journal."
+            sql_info["description_var"] = (
+                "Indtastet CPR matcher ikke CPR fra den åbnede journal."
+            )
             raise ManualProcessingRequiredError from e
         except ORAppointmentFoundError as e:
-            sql_info['description_var'] = "'OR aftale meddelt' fundet"
+            sql_info["description_var"] = "'OR aftale meddelt' fundet"
             raise ManualProcessingRequiredError from e
         except NoAppointmentFoundError as e:
-            sql_info['description_var'] = "Ingen 'Ikke meddelt aftale' fundet"
+            sql_info["description_var"] = "Ingen 'Ikke meddelt aftale' fundet"
             raise ManualProcessingRequiredError from e
         except ManualProcessingRequiredError as e:
-            sql_info['description_var'] = "Advarsel da aftale gemtes"
+            sql_info["description_var"] = "Advarsel da aftale gemtes"
             raise ManualProcessingRequiredError from e
 
     # Here we insert information to manual list, if some business exception is found
@@ -79,8 +92,7 @@ def process_queue_element(
         orchestrator_connection.log_trace("Tilføjer person til manuel liste")
 
         insert_manual_list(
-            orchestrator_connection=orchestrator_connection,
-            sql_info=sql_info
+            orchestrator_connection=orchestrator_connection, sql_info=sql_info
         )
 
         orchestrator_connection.log_trace("Lukker patientvindue")

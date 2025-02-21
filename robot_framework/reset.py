@@ -20,6 +20,10 @@ def reset(orchestrator_connection: OrchestratorConnection) -> None:
 def clean_up(orchestrator_connection: OrchestratorConnection) -> None:
     """Do any cleanup needed to leave a blank slate."""
     orchestrator_connection.log_trace("Doing cleanup.")
+    if hasattr(orchestrator_connection, "app"):
+        if isinstance(orchestrator_connection.app, SolteqTandApp):
+            orchestrator_connection.app.app_window.SendKeys("{Control}{F4}")
+            orchestrator_connection.log_trace("Lukkede solteq vindue")
 
 
 def close_all(orchestrator_connection: OrchestratorConnection) -> None:
@@ -28,7 +32,7 @@ def close_all(orchestrator_connection: OrchestratorConnection) -> None:
     if hasattr(orchestrator_connection, "app"):
         if isinstance(orchestrator_connection.app, SolteqTandApp):
             orchestrator_connection.app.close_solteq_tand()
-            orchestrator_connection.log_trace("Lukkede solteq")
+            orchestrator_connection.log_trace("Lukkede solteq program")
 
 
 def kill_all(orchestrator_connection: OrchestratorConnection) -> None:

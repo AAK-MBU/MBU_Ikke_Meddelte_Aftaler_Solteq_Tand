@@ -22,11 +22,11 @@ def generate_queue(
     # Set dates, clinic and status to get correct appointments
     orchestrator_connection.log_trace("Sætter dato")
     start_date, end_date = get_start_end_dates()
-    orchestrator_connection.log_trace(f"{start_date.strftime("%d/%m-%Y")}-{end_date.strftime("%d/%m-%Y")}")
+    orchestrator_connection.log_trace(
+        f"{start_date.strftime("%d/%m-%Y")}-{end_date.strftime("%d/%m-%Y")}"
+    )
 
-    solteq_app.set_date_in_aftalebog(
-        from_date=start_date,
-        to_date=end_date)
+    solteq_app.set_date_in_aftalebog(from_date=start_date, to_date=end_date)
 
     orchestrator_connection.log_trace("Datoer er sat korrekt")
 
@@ -34,14 +34,14 @@ def generate_queue(
 
     orchestrator_connection.log_trace("'Ikke meddelt aftale' valgt")
 
-    solteq_app.pick_clinic_aftalebog(clinic='Aarhus Tandregulering')
+    solteq_app.pick_clinic_aftalebog(clinic="Aarhus Tandregulering")
 
     # Retrieve appointments in view
     orchestrator_connection.log_trace("Henter aftaler")
 
     appointments = solteq_app.get_appointments_aftalebog(
-        close_after=True,
-        headers_to_keep=['Navn', 'Cpr'])
+        close_after=True, headers_to_keep=["Navn", "Cpr"]
+    )
 
     orchestrator_connection.log_trace("Aftaler hentet")
 
@@ -52,7 +52,13 @@ def generate_queue(
             + f"{start_date.strftime(format="%d%m%y")}_"
             + f"{end_date.strftime(format="%d%m%y")}_"
             + f"{j}"
-        ) for j, appointment in enumerate(appointments)
+        )
+        for j, _ in enumerate(appointments)
+    ]
+
+    # Prepare appointments for upload
+    appointments = [
+        f'{value}'.replace("\'", "\"") for value in appointments.values()
     ]
 
     # Upload to queue
@@ -60,7 +66,7 @@ def generate_queue(
         queue_name="dev_ikke_meddelte_aftaler",
         references=references,
         data=appointments,
-        created_by="dev_ahss"
+        created_by="dev_ahss",
     )
 
     orchestrator_connection.log_trace("Aftaler sendt til orchestrator kø")

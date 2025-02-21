@@ -21,11 +21,12 @@ def main():
     """The entry point for the framework. Should be called as the first thing when running the robot."""
     # orchestrator_connection = OrchestratorConnection.create_connection_from_args()
     import os
+
     orchestrator_connection = OrchestratorConnection(
         process_name="Udvikling: Ikke meddelte aftaler",
         connection_string=os.getenv("OpenOrchestratorConnStringTest"),
         crypto_key=os.getenv("OpenOrchestratorKeyTest"),
-        process_arguments=""
+        process_arguments="",
     )
     sys.excepthook = log_exception(orchestrator_connection=None)
 
@@ -46,7 +47,9 @@ def main():
             while task_count < config.MAX_TASK_COUNT:
                 task_count += 1
                 # orchestrator_connection.log_trace(f"Processing queue element #{task_count}")
-                queue_element = orchestrator_connection.get_next_queue_element(config.QUEUE_NAME)
+                queue_element = orchestrator_connection.get_next_queue_element(
+                    config.QUEUE_NAME
+                )
 
                 if not queue_element:
                     orchestrator_connection.log_info("Queue empty.")
@@ -58,7 +61,9 @@ def main():
                     orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
 
                 except BusinessError as error:
-                    handle_error("Business Error", error, queue_element, orchestrator_connection)
+                    handle_error(
+                        "Business Error", error, queue_element, orchestrator_connection
+                    )
 
             break  # Break retry loop
 
@@ -66,7 +71,12 @@ def main():
         # pylint: disable-next = broad-exception-caught
         except Exception as error:
             error_count += 1
-            handle_error(f"Process Error #{error_count}", error, queue_element, orchestrator_connection)
+            handle_error(
+                f"Process Error #{error_count}",
+                error,
+                queue_element,
+                orchestrator_connection,
+            )
             print(error)
 
     reset.clean_up(orchestrator_connection)
