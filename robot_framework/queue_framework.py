@@ -39,8 +39,8 @@ def main():
     # Retry loop
     for _ in range(config.MAX_RETRY_COUNT):
         try:
+            orchestrator_connection.log_trace("Beginning queue handling")
             reset.reset(orchestrator_connection)
-            orchestrator_connection.log_trace("Opening Solteq Tand")
 
             # Queue loop
             while task_count < config.MAX_TASK_COUNT:
@@ -53,7 +53,7 @@ def main():
                     break  # Break queue loop
 
                 try:
-                    orchestrator_connection.log_trace("Opening journal")
+                    orchestrator_connection.log_trace("Handling queue element")
                     process.process(orchestrator_connection, queue_element)
                     orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
 
