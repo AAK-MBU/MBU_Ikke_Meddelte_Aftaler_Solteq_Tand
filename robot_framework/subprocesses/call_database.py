@@ -15,8 +15,8 @@ def connect_to_db(
         rpa_conn (pyodbc.Connection): The connection object to the SQL database.
     """
     rpa_conn_string = orchestrator_connection.get_constant(
-        "rpa_db_connstr"
-    ).value  # Test constant. For prod use: "DbConnectionString"
+        "DbConnectionString"
+    ).value
     rpa_conn = pyodbc.connect(rpa_conn_string)
     return rpa_conn
 
