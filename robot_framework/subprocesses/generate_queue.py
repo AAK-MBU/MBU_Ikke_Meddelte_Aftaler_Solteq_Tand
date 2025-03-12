@@ -22,6 +22,8 @@ def generate_queue(
     # Set dates, clinic and status to get correct appointments
     orchestrator_connection.log_trace("Sætter dato")
     start_date, end_date = get_start_end_dates()
+    start_date += timedelta(days=30)
+    end_date += timedelta(days=30)
     orchestrator_connection.log_trace(
         f"{start_date.strftime("%d/%m-%Y")}-{end_date.strftime("%d/%m-%Y")}"
     )
@@ -63,10 +65,10 @@ def generate_queue(
 
     # Upload to queue
     orchestrator_connection.bulk_create_queue_elements(
-        queue_name="dev_ikke_meddelte_aftaler",
+        queue_name="solteq_ikke_meddelte_aftaler",
         references=references,
         data=appointments,
-        created_by="dev_ahss",
+        created_by="mbu_robot",
     )
 
     orchestrator_connection.log_trace("Aftaler sendt til orchestrator kø")

@@ -1,8 +1,95 @@
 """This file contains functions with calls to SQL database"""
 
 import pyodbc
+import pandas as pd
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
+
+
+def connect_to_db(
+        orchestrator_connection: OrchestratorConnection
+):
+    """Establish connection to sql database
+
+    Returns:
+        rpa_conn (pyodbc.Connection): The connection object to the SQL database.
+    """
+    rpa_conn_string = orchestrator_connection.get_constant(
+        "rpa_db_connstr"
+    ).value  # Test constant. For prod use: "DbConnectionString"
+    rpa_conn = pyodbc.connect(rpa_conn_string)
+    return rpa_conn
+
+
+def get_queue(
+        orchestrator_connection: OrchestratorConnection,
+        queue="solteq_ikke_meddelte_aftaler"
+):
+    """Function to get queue from database. Used to assert that queue is empty."""
+
+    rpa_conn = connect_to_db(orchestrator_connection)
+    cursor = rpa_conn.cursor()
+
+    try:
+        query = """
+            SELECT *
+            FROM [RPA].[dbo].[Queues]
+            WHERE queue_name = ?
+            AND status = 'NEW'
+        """
+        res = cursor.execute(query, (queue))
+        # Get all rows from query
+        rows = res.fetchall()
+
+        return rows
+    except pyodbc.Error as exc:
+        print(exc)
+    finally:
+        rpa_conn.close()
+
+
+def get_manual_list(
+        orchestrator_connection: OrchestratorConnection,
+        start_date: str,
+        end_date: str
+):
+    """
+    Function to get the manual list from the SQL database.
+
+    Args:
+        orcestrator_connection (OrchestratorConnection): OpenOrchestrator connection
+        start_date (datetime): start date for current period handled
+        end_date (datetime): end date for current period handled
+
+    Returns:
+        manual_list (pd.DataFrame): Dataframe with the manual list
+    """
+    rpa_conn = connect_to_db(orchestrator_connection)
+    cursor = rpa_conn.cursor()
+
+    try:
+        query = """
+            SELECT
+                Name
+                ,CPR
+                ,AppointmentType
+                ,Description
+            FROM [RPA].[rpa].[MBU006IkkeMeddelteAftaler]
+            WHERE Date BETWEEN ? AND ?
+        """
+        res = cursor.execute(query, (start_date, end_date))
+        # Get all rows from query
+        rows = res.fetchall()
+
+        # Package in pandas
+        manual_list = pd.DataFrame.from_records(
+            rows,
+            columns=[col[0] for col in res.description])
+        return manual_list
+    except pyodbc.Error as exc:
+        print(exc)
+    finally:
+        rpa_conn.close()
 
 
 def insert_manual_list(
@@ -15,10 +102,7 @@ def insert_manual_list(
     Args:
         orchestrator_connection (OrchestratorConnection): Open Orchestrator connection
         sql_info (dict): Dictionary with info to be inserted in sql database"""
-    rpa_conn_string = orchestrator_connection.get_constant(
-        "rpa_db_connstr"
-    ).value  # Test constant. For prod use: "DbConnectionString"
-    rpa_conn = pyodbc.connect(rpa_conn_string)
+    rpa_conn = connect_to_db(orchestrator_connection)
     cursor = rpa_conn.cursor()
 
     # Inserts information in database
@@ -35,12 +119,12 @@ def insert_manual_list(
                 OrchestratorReference,
                 Date)
             VALUES
-                (?, 
-                ?, 
-                ?, 
-                ?, 
-                ?, 
-                ?, 
+                (?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
                 GetDate())
         """
         cursor.execute(

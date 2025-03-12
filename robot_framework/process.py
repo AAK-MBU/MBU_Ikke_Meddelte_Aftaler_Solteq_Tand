@@ -13,16 +13,7 @@ def process(
         queue_element: QueueElement | None = None,
         app: SolteqTandApp | None = None) -> None:
     """Do the primary process of the robot."""
-    # orchestrator_connection.log_trace("Running process.")
-
-    # connection_string = orchestrator_connection.get_constant('DbConnectionString').value
-    # connection_string = os.getenv('DbConnectionString')  # For testing
-    # oc_args_json = json.loads(orchestrator_connection.process_arguments)
-    # process_arg = oc_args_json['process']
-
-    # This process runs in the application window
-    # The functions to handle the application should be written as generally as possible
-    # in mbu_dev_shared_components
+    orchestrator_connection.log_trace("Running process.")
 
     # Set queue variables for SQL
     app = orchestrator_connection.app

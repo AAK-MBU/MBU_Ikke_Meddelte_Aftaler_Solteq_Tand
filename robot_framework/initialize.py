@@ -14,6 +14,7 @@ def initialize(orchestrator_connection: OrchestratorConnection) -> None:
 
     app = orchestrator_connection.app
 
+    # Opens SolteqTand and retrieves the patients that should be modified
     generate_queue(
         orchestrator_connection=orchestrator_connection,
         solteq_app=app

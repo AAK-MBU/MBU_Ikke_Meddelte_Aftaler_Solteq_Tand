@@ -15,19 +15,12 @@ from robot_framework import reset
 from robot_framework.exceptions import handle_error, BusinessError, log_exception
 from robot_framework import process
 from robot_framework import config
+from robot_framework import finalize
 
 
 def main():
     """The entry point for the framework. Should be called as the first thing when running the robot."""
-    # orchestrator_connection = OrchestratorConnection.create_connection_from_args()
-    import os
-
-    orchestrator_connection = OrchestratorConnection(
-        process_name="Udvikling: Ikke meddelte aftaler",
-        connection_string=os.getenv("OpenOrchestratorConnStringTest"),
-        crypto_key=os.getenv("OpenOrchestratorKeyTest"),
-        process_arguments="",
-    )
+    orchestrator_connection = OrchestratorConnection.create_connection_from_args()
     sys.excepthook = log_exception(orchestrator_connection=None)
 
     orchestrator_connection.log_trace("Robot Framework started.")
@@ -82,6 +75,8 @@ def main():
     reset.clean_up(orchestrator_connection)
     reset.close_all(orchestrator_connection)
     reset.kill_all(orchestrator_connection)
+
+    finalize.finalize(orchestrator_connection)
 
     if config.FAIL_ROBOT_ON_TOO_MANY_ERRORS and error_count == config.MAX_RETRY_COUNT:
         raise RuntimeError("Process failed too many times.")
