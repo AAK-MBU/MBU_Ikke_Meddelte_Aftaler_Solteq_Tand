@@ -7,7 +7,7 @@ import uiautomation as auto
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
-from mbu_dev_shared_components.solteqtand.app_handler import ManualProcessingRequiredError, NotMatchingError, SolteqTandApp
+from mbu_dev_shared_components.solteqtand.app_handler import ManualProcessingRequiredError, SolteqTandApp
 
 
 class NoAppointmentFoundError(Exception):
@@ -27,16 +27,23 @@ def check_patient(
         solteq_app: SolteqTandApp,
         SSN: str
 ) -> auto.Control:
+    """Function to check different requirements for patient before patient is handled.
+
+    Args:
+        orchestrator_connection (OrchestratorConnection): The connection to OpenOrchestrator
+        solteq_app (SolteqTandApp): The SolteqTand application instance
+        SSN (str): CPR number of the current patient
+
+    returns:
+        appointment_control (auto.Control): Control of the appointment to handle
+    """
     appointment_control = None
     appointments = check_or_aftale_meddelt(
         orchestrator_connection=orchestrator_connection,
         solteq_app=solteq_app,
         return_dict=True)
     orchestrator_connection.log_trace("Ingen 'OR aftale meddelt' fundet")
-    if not check_age_under_18(
-        orchestrator_connection=orchestrator_connection,
-        SSN=SSN
-    ):
+    if not check_age_under_18(SSN=SSN):
         orchestrator_connection.log_trace("Patienten er over 18. Fjerner ekstra modtagere af beskeder")
         solteq_app.set_extra_recipients(False)
     # Find first ikke_meddelt_aftale
@@ -48,8 +55,8 @@ def check_patient(
 
     if appointment_control:
         return appointment_control
-    else:
-        raise ManualProcessingRequiredError
+
+    raise ManualProcessingRequiredError
 
 
 def select_first_appointment(
@@ -104,14 +111,12 @@ def check_or_aftale_meddelt(
 
 
 def check_age_under_18(
-        orchestrator_connection: OrchestratorConnection,
         SSN: str
 ) -> bool:
     """
     Function to check whether patient is under 18
 
     Args:
-        orchestrator_connection (OrchestratorConnection): Connection to OpenOrchestrator
         SSN (str): CPR number in format DDMMYYxxxx
 
     Returns:
