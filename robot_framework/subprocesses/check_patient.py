@@ -104,39 +104,25 @@ def check_or_aftale_meddelt(
 
 
 def check_age_under_18(
-        orchestrator_connection: OrchestratorConnection,        
-        SSN: str):
-    """Function to check age of inputted SSN. Return true if under 18"""
-    orchestrator_connection.log_trace("Tjekker om patienten er under 18")
-    # Extract the birthdate part (DDMMYY) from the input string (first 6 characters)
-    birthdate = SSN[:6]
-    
-    # Get the current year
-    current_year = pd.to_datetime('today').year
-    
-    # Extract the last 2 digits of the year (YY)
-    year_suffix = int(birthdate[4:6])
-    
-    # Determine the full year by checking if the year_suffix is within a reasonable range
-    if year_suffix > current_year % 100:
-        # Assume birth year is in the 1900s (19YY)
-        year = 1900 + year_suffix
-    else:
-        # Assume birth year is in the 2000s (20YY)
-        year = 2000 + year_suffix
+        orchestrator_connection: OrchestratorConnection,
+        SSN: str
+) -> bool:
+    """
+    Function to check whether patient is under 18
 
-    # Create the full birthdate string by combining DDMM with the calculated year
-    full_birthdate_str = f"{birthdate[:2]}-{birthdate[2:4]}-{year}"
-    
-    # Convert the birthdate to a pandas datetime object
-    birthdate_obj = pd.to_datetime(full_birthdate_str, format='%d-%m-%Y')
-    
-    # Get today's date
-    today = pd.to_datetime('today')
-    
-    # Calculate age in years
-    age = (today - birthdate_obj).days // 365
-    
-    # Check if age is above or equal to 18
-    return age < 18
-    # return age < 10
+    Args:
+        orchestrator_connection (OrchestratorConnection): Connection to OpenOrchestrator
+        SSN (str): CPR number in format DDMMYYxxxx
+
+    Returns:
+        is_under_18 (bool): Boolean indicating whether person is under 18
+    """
+    # Extract birthdate from cpr
+    birthdate = SSN[:6]
+    # Get datetime for birth and today
+    born = pd.to_datetime(birthdate, format="%d%m%y")
+    today = pd.to_datetime("today")
+    # Compute difference in years, extract one if no birthday yet in current year
+    age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    is_under_18 = age < 18
+    return is_under_18
