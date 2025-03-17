@@ -21,7 +21,7 @@ def finalize(
     try:
         queue = get_queue(
             orchestrator_connection=orchestrator_connection,
-            queue='solteq_ikke_meddelte_aftaler'
+            queue='solteqtand_ikke_meddelte_aftaler'
         )
         if len(queue) != 0:
             raise QueueNotEmptyError(

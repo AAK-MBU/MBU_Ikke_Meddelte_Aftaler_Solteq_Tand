@@ -7,7 +7,7 @@ from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConn
 
 
 def connect_to_db(
-        orchestrator_connection: OrchestratorConnection
+    orchestrator_connection: OrchestratorConnection
 ):
     """Establish connection to sql database
 
@@ -22,8 +22,8 @@ def connect_to_db(
 
 
 def get_queue(
-        orchestrator_connection: OrchestratorConnection,
-        queue="solteq_ikke_meddelte_aftaler"
+    orchestrator_connection: OrchestratorConnection,
+    queue="solteqtand_ikke_meddelte_aftaler",
 ):
     """Function to get queue from database. Used to assert that queue is empty."""
 
@@ -49,9 +49,9 @@ def get_queue(
 
 
 def get_manual_list(
-        orchestrator_connection: OrchestratorConnection,
-        start_date: str,
-        end_date: str
+    orchestrator_connection: OrchestratorConnection,
+    start_date: str,
+    end_date: str
 ):
     """
     Function to get the manual list from the SQL database.
@@ -93,8 +93,8 @@ def get_manual_list(
 
 
 def insert_manual_list(
-        orchestrator_connection: OrchestratorConnection,
-        sql_info: dict
+    orchestrator_connection: OrchestratorConnection,
+    sql_info: dict
 ):
     """
     Function to insert queue info into manual list due to business error.

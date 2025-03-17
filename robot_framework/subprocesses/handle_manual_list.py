@@ -2,7 +2,6 @@
 
 import os
 import json
-from datetime import datetime
 from io import BytesIO
 import openpyxl
 
@@ -38,8 +37,6 @@ def create_excel_sheet(
 ):
     """Function to create excel sheet from sql table"""
     start_date, end_date = get_start_end_dates()
-    start_date = datetime(year=2025, month=3, day=1)
-    end_date = datetime(year=2025, month=3, day=31)
     start_date_str = start_date.strftime("%Y-%m-%d")
     end_date_str = end_date.strftime("%Y-%m-%d")
     orchestrator_connection.log_trace(f"Periode: {start_date_str} - {end_date_str}")
