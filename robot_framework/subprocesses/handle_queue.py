@@ -19,6 +19,7 @@ from robot_framework.subprocesses.check_patient import (
     NoAppointmentFoundError,
 )
 from robot_framework.subprocesses.call_database import insert_manual_list
+from robot_framework.subprocesses.generate_queue import get_start_end_dates
 
 
 def process_queue_element(
@@ -91,8 +92,10 @@ def process_queue_element(
         # Connects to RPA sql
         orchestrator_connection.log_trace("Tilføjer person til manuel liste")
 
+        start_date, _ = get_start_end_dates()
+
         insert_manual_list(
-            orchestrator_connection=orchestrator_connection, sql_info=sql_info
+            orchestrator_connection=orchestrator_connection, sql_info=sql_info, date=start_date
         )
 
         orchestrator_connection.log_trace("Lukker patientvindue")

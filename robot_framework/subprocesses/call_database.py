@@ -3,6 +3,8 @@
 import pyodbc
 import pandas as pd
 
+from datetime import datetime
+
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
 
@@ -94,7 +96,8 @@ def get_manual_list(
 
 def insert_manual_list(
     orchestrator_connection: OrchestratorConnection,
-    sql_info: dict
+    sql_info: dict,
+    date: datetime
 ):
     """
     Function to insert queue info into manual list due to business error.
@@ -125,7 +128,7 @@ def insert_manual_list(
                 ?,
                 ?,
                 ?,
-                GetDate())
+                ?)
         """
         cursor.execute(
             query,
@@ -135,7 +138,8 @@ def insert_manual_list(
                 sql_info["appointment_type_var"],
                 sql_info["description_var"],
                 "",
-                sql_info["orchestrator_reference_var"]
+                sql_info["orchestrator_reference_var"],
+                date
             ))
         rpa_conn.commit()
     except pyodbc.Error as exc:
