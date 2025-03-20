@@ -43,9 +43,6 @@ def check_patient(
         solteq_app=solteq_app,
         return_dict=True)
     orchestrator_connection.log_trace("Ingen 'OR aftale meddelt' fundet")
-    if not check_age_under_18(SSN=SSN):
-        orchestrator_connection.log_trace("Patienten er over 18. Fjerner ekstra modtagere af beskeder")
-        solteq_app.set_extra_recipients(False)
     # Find first ikke_meddelt_aftale
     appointment_control = select_first_appointment(
         orchestrator_connection=orchestrator_connection,
