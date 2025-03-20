@@ -3,10 +3,10 @@ requires = ["setuptools>=65.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "robot_framework"
+name = "mbu-ikke-meddelte-aftaler"
 version = "0.0.1"
 authors = [
-  { name="ITK Development", email="itk-rpa@mkb.aarhus.dk" },
+  { name="MBU RPA", email="rpa@mbu.aarhus.dk" },
 ]
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,7 +16,7 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
 ]
 dependencies = [
-    "itk-dev-shared-componenets",
+    "itk-dev-shared-components>=2.9.0",
     "mbu-dev-shared-components>=0.3.5",
     "OpenOrchestrator == 1.*",
     "pandas>=2.2.3",
