@@ -49,7 +49,7 @@ def create_excel_sheet(
     filename = f"Ikke meddelte aftaler - Manuelliste {start_date_str}_{end_date_str}.xlsx"
     filepath = os.path.join(path, filename)
     if not os.path.exists(path):
-        os.mkdir(path)
+        os.makedirs(path)
     # Remove cell border fix
     manual_list = manual_list.T.reset_index().T
     manual_list.to_excel(filepath, header=False, index=False)
