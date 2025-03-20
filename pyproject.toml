@@ -16,6 +16,7 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
 ]
 dependencies = [
+    "itk-dev-shared-componenets",
     "mbu-dev-shared-components>=0.3.5",
     "OpenOrchestrator == 1.*",
     "pandas>=2.2.3",
