@@ -3,7 +3,7 @@
 import pyodbc
 import pandas as pd
 
-from datetime import datetime
+from datetime import datetime, time
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
@@ -68,6 +68,10 @@ def get_manual_list(
     """
     rpa_conn = connect_to_db(orchestrator_connection)
     cursor = rpa_conn.cursor()
+
+    # Set time range to 00:00:00 - 23:59:59 (start_date to end_date)
+    start_date = datetime.combine(start_date, time.min)
+    end_date = datetime.combine(end_date, time.max)
 
     try:
         query = """

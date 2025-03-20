@@ -95,3 +95,5 @@ def send_manual_list(
         smtp_port=orchestrator_connection.get_constant("smtp_port").value,
         attachments=attachments if attachments else None
     )
+
+    orchestrator_connection.log_trace("E-mail med manuel liste afsendt.")
