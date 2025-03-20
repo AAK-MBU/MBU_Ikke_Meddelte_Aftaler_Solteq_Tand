@@ -22,7 +22,7 @@ ERROR_EMAIL = "Error Email"
 QUEUE_NAME = "solteqtand_ikke_meddelte_aftaler"
 
 # The limit on how many queue elements to process
-MAX_TASK_COUNT = 100
+MAX_TASK_COUNT = 300
 
 # ----------------------
 APP_PATH = "C:\\Program Files (x86)\\TM Care\\TM Tand\\TMTand.exe"
