@@ -3,6 +3,8 @@
 from datetime import datetime, timedelta
 import calendar
 
+from robot_framework import config
+
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
 from mbu_dev_shared_components.solteqtand.app_handler import SolteqTandApp
@@ -63,7 +65,7 @@ def generate_queue(
 
     # Upload to queue
     orchestrator_connection.bulk_create_queue_elements(
-        queue_name="solteqtand_ikke_meddelte_aftaler",
+        queue_name=config.QUEUE_NAME,
         references=references,
         data=appointments,
         created_by="mbu_robot",

@@ -19,7 +19,7 @@ ERROR_EMAIL = "Error Email"
 # ----------------------
 
 # The name of the job queue (if any)
-QUEUE_NAME = "dev_ikke_meddelte_aftaler"
+QUEUE_NAME = "solteqtand_ikke_meddelte_aftaler"
 
 # The limit on how many queue elements to process
 MAX_TASK_COUNT = 100

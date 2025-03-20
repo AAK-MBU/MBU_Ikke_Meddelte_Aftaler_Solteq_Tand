@@ -5,6 +5,7 @@ from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConn
 from robot_framework.subprocesses.handle_manual_list import delete_temp_files, create_excel_sheet, send_manual_list
 from robot_framework.exceptions import handle_error
 from robot_framework.subprocesses.call_database import get_queue
+from robot_framework import config
 
 
 class QueueNotEmptyError(Exception):
@@ -21,7 +22,7 @@ def finalize(
     try:
         queue = get_queue(
             orchestrator_connection=orchestrator_connection,
-            queue='solteqtand_ikke_meddelte_aftaler'
+            queue=config.QUEUE_NAME
         )
         if len(queue) != 0:
             raise QueueNotEmptyError(
