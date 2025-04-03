@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mbu-ikke-meddelte-aftaler"
-version = "0.0.8"
+version = "0.0.9"
 authors = [
   { name="MBU RPA", email="rpa@mbu.aarhus.dk" },
 ]
@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "itk-dev-shared-components>=2.9.0",
-    "mbu-dev-shared-components>=0.3.5",
+    "mbu-dev-shared-components>=0.4.2",
     "OpenOrchestrator == 1.*",
     "pandas>=2.2.3",
     "Pillow == 10.*",
