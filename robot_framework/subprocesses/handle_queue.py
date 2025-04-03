@@ -37,7 +37,7 @@ def process_queue_element(
         "name_var": queue_element.data["Navn"],
         "cpr_var": queue_element.data["Cpr"],
         "orchestrator_reference_var": queue_element.id,
-        "appointment_type_var": "",
+        "appointment_type_var": queue_element.data["Aftaletype"],
         "description_var": "",
     }
 

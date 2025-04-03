@@ -42,7 +42,7 @@ def generate_queue(
     orchestrator_connection.log_trace("Henter aftaler")
 
     appointments = solteq_app.get_appointments_aftalebog(
-        close_after=True, headers_to_keep=["Navn", "Cpr"]
+        close_after=True, headers_to_keep=["Navn", "Cpr", "Aftaletype"]
     )
 
     orchestrator_connection.log_trace(f"{len(appointments)} aftaler hentet")
