@@ -25,7 +25,7 @@ def generate_queue(
     orchestrator_connection.log_trace("Sætter dato")
     start_date, end_date = get_start_end_dates()
     orchestrator_connection.log_trace(
-        f"{start_date.strftime("%d/%m-%Y")}-{end_date.strftime("%d/%m-%Y")}"
+        f"{start_date.strftime('%d/%m-%Y')}-{end_date.strftime('%d/%m-%Y')}"
     )
 
     solteq_app.set_date_in_aftalebog(from_date=start_date, to_date=end_date)
@@ -51,8 +51,8 @@ def generate_queue(
     references = [
         (
             "ikke_meddelte_aftaler_"
-            + f"{start_date.strftime(format="%d%m%y")}_"
-            + f"{end_date.strftime(format="%d%m%y")}_"
+            + f"{start_date.strftime(format='%d%m%y')}_"
+            + f"{end_date.strftime(format='%d%m%y')}_"
             + f"{j}"
         )
         for j, _ in enumerate(appointments)
