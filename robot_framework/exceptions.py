@@ -31,9 +31,15 @@ def handle_error(message: str, error: Exception, queue_element: QueueElement | N
 
     orchestrator_connection.log_error(error_msg)
     if queue_element:
-        orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.FAILED, error_msg)
-    if not isinstance(error, BusinessError):
-        error_screenshot.send_error_screenshot(error_email, error, orchestrator_connection.process_name)
+        print(error)
+        if isinstance(error, BusinessError):
+            QueueStatus.MANUAL = "MANUAL"
+            orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.MANUAL, error_msg)
+        else:
+            orchestrator_connection.set_queue_element_status(
+                queue_element.id, QueueStatus.FAILED, error_msg
+            )
+            error_screenshot.send_error_screenshot(error_email, error, orchestrator_connection.process_name)
 
 
 def log_exception(orchestrator_connection: OrchestratorConnection) -> callable:
