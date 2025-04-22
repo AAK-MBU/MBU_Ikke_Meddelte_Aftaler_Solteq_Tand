@@ -33,8 +33,7 @@ def handle_error(message: str, error: Exception, queue_element: QueueElement | N
     if queue_element:
         print(error)
         if isinstance(error, BusinessError):
-            QueueStatus.MANUAL = "MANUAL"
-            orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.MANUAL, error_msg)
+            orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.ABANDONED, error_msg)
         else:
             orchestrator_connection.set_queue_element_status(
                 queue_element.id, QueueStatus.FAILED, error_msg
