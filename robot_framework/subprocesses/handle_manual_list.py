@@ -72,6 +72,13 @@ def send_manual_list(
 
     # Read excel file into BytesIO object
     wb = openpyxl.load_workbook(filepath)
+        
+    # Select the active worksheet (or specify the sheet name)
+    ws = wb.active
+
+    # Get the number of rows
+    number_of_rows = ws.max_row
+
     excel_buffer = BytesIO()
     wb.save(excel_buffer)
     excel_buffer.seek(0)
@@ -96,4 +103,4 @@ def send_manual_list(
         attachments=attachments if attachments else None
     )
 
-    orchestrator_connection.log_trace("E-mail med manuel liste afsendt.")
+    orchestrator_connection.log_trace(f"E-mail med manuel liste ({number_of_rows} rækker) afsendt til {email_recipient}.")
