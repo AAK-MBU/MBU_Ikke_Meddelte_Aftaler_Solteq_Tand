@@ -81,8 +81,8 @@ def get_start_end_dates() -> tuple[datetime, datetime]:
     # Get the current date
     current_date = datetime.now()
 
-    # Check if the current day of the month is between 1 and 15 (inclusive)
-    if 1 <= current_date.day <= 15:
+    # Check if the current day of the month is between 1 and 15 (not including. Allowing for cron to run on 3rd specific weekday of month)
+    if 1 <= current_date.day < 15:
         # Set start_date to 1st of next month
         start_date = current_date.replace(day=1) + timedelta(
             days=calendar.monthrange(current_date.year, current_date.month)[1]
