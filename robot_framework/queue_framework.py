@@ -61,11 +61,15 @@ def main():
                         "Business Error", error, queue_element, orchestrator_connection
                     )
 
-                except Exception:
+                # Log all possible errors in processing of queue in manual list
+                except Exception as error:
+                    orchestrator_connection.log_error(f"Some processing error: {error}")
+                    orchestrator_connection.log_trace(f"Adding {queue_element.id = } to manual list")
                     sql_info = get_sql_info(queue_element)
                     sql_info["description_var"] = "Ukendt fejl ved processering. Tjek gerne status på aftalen"
                     start_date, _ = get_start_end_dates()
                     insert_manual_list(orchestrator_connection, sql_info, start_date)
+                    raise TimeoutError from error
 
             break  # Break retry loop
 
