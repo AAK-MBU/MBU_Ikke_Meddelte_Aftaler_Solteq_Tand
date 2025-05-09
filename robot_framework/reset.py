@@ -37,7 +37,7 @@ def close_all(orchestrator_connection: OrchestratorConnection) -> None:
                 orchestrator_connection.app.close_solteq_tand()
                 orchestrator_connection.log_trace("Lukkede solteq program")
     except Exception:
-            orchestrator_connection.log_trace("Kunne ikke lukke solteq gracefully")
+        orchestrator_connection.log_trace("Kunne ikke lukke solteq gracefully")
 
 
 def kill_all(orchestrator_connection: OrchestratorConnection) -> None:
