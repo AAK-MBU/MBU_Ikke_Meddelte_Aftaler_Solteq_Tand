@@ -1,7 +1,5 @@
 """Handles queue elements"""
 
-import json
-
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from OpenOrchestrator.database.queues import QueueElement
 
@@ -22,6 +20,20 @@ from robot_framework.subprocesses.call_database import insert_manual_list
 from robot_framework.subprocesses.generate_queue import get_start_end_dates
 
 
+def get_sql_info(queue_element):
+    """Function to get SQL info for manual list from queue element"""
+    import json
+    queue_element.data = json.loads(queue_element.data)
+    sql_info = {
+        "name_var": queue_element.data["Navn"],
+        "cpr_var": queue_element.data["Cpr"],
+        "orchestrator_reference_var": queue_element.id,
+        "appointment_type_var": queue_element.data["Aftaletype"],
+        "description_var": "",
+    }
+    return sql_info
+
+
 def process_queue_element(
     orchestrator_connection: OrchestratorConnection,
     queue_element: QueueElement,
@@ -32,14 +44,7 @@ def process_queue_element(
     Process changes status of appointments and sends out messages to patient.
     If any business error, queue element is added to a manual list in an SQL database.
     """
-    queue_element.data = json.loads(queue_element.data)
-    sql_info = {
-        "name_var": queue_element.data["Navn"],
-        "cpr_var": queue_element.data["Cpr"],
-        "orchestrator_reference_var": queue_element.id,
-        "appointment_type_var": queue_element.data["Aftaletype"],
-        "description_var": "",
-    }
+    sql_info = get_sql_info(queue_element)
 
     # Find the patient
     SSN = queue_element.data["Cpr"].replace("-", "")

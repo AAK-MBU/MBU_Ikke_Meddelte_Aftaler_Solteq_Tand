@@ -16,6 +16,9 @@ from robot_framework.exceptions import handle_error, BusinessError, log_exceptio
 from robot_framework import process
 from robot_framework import config
 from robot_framework import finalize
+from robot_framework.subprocesses.call_database import insert_manual_list
+from robot_framework.subprocesses.handle_queue import get_sql_info
+from robot_framework.subprocesses.generate_queue import get_start_end_dates
 
 
 def main():
@@ -49,7 +52,7 @@ def main():
                     break  # Break queue loop
 
                 try:
-                    orchestrator_connection.log_trace("Handling queue element")
+                    orchestrator_connection.log_trace(f"Handling queue element {queue_element.id}")
                     process.process(orchestrator_connection, queue_element)
                     orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
 
@@ -57,6 +60,12 @@ def main():
                     handle_error(
                         "Business Error", error, queue_element, orchestrator_connection
                     )
+
+                except Exception:
+                    sql_info = get_sql_info(queue_element)
+                    sql_info["description_var"] = "Ukendt fejl ved processering. Tjek gerne status på aftalen"
+                    start_date, _ = get_start_end_dates()
+                    insert_manual_list(orchestrator_connection, sql_info, start_date)
 
             break  # Break retry loop
 
