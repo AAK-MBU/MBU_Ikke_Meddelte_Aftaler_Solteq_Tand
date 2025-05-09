@@ -68,8 +68,9 @@ def select_first_appointment(
         appointments_df = appointments['dataframe']
         first_ikke_meddelt = appointments_df[
             (
-                (appointments_df['Status'] == appointment_to_select) &
-                (appointments_df['Klinik'] == "121"))
+                (appointments_df['Status'] == appointment_to_select)
+                (appointments_df['Klinik'] == "121")
+            )
         ].index[0]
         appointment_control = appointments["controls"][first_ikke_meddelt]
 

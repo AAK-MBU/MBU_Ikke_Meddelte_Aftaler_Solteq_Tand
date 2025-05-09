@@ -1,5 +1,7 @@
 """This module handles resetting the state of the computer so the robot can work with a clean slate."""
 
+import subprocess as sp
+
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
 from mbu_dev_shared_components.solteqtand.app_handler import SolteqTandApp
@@ -29,15 +31,22 @@ def clean_up(orchestrator_connection: OrchestratorConnection) -> None:
 def close_all(orchestrator_connection: OrchestratorConnection) -> None:
     """Gracefully close all applications used by the robot."""
     # orchestrator_connection.log_trace("Closing all applications.")
-    if hasattr(orchestrator_connection, "app"):
-        if isinstance(orchestrator_connection.app, SolteqTandApp):
-            orchestrator_connection.app.close_solteq_tand()
-            orchestrator_connection.log_trace("Lukkede solteq program")
+    try:
+        if hasattr(orchestrator_connection, "app"):
+            if isinstance(orchestrator_connection.app, SolteqTandApp):
+                orchestrator_connection.app.close_solteq_tand()
+                orchestrator_connection.log_trace("Lukkede solteq program")
+    except Exception:
+            orchestrator_connection.log_trace("Kunne ikke lukke solteq gracefully")
 
 
 def kill_all(orchestrator_connection: OrchestratorConnection) -> None:
     """Forcefully close all applications used by the robot."""
     orchestrator_connection.log_trace("Killing all applications.")
+    list_processes = ['wmic', 'process', 'get', 'description']
+    while 'TMTand.exe' in sp.check_output(list_processes).strip().decode():
+        kill_msg = sp.check_output(['taskkill', '/f', '/im', 'TMTand.exe'])
+        orchestrator_connection.log_trace(kill_msg)
 
 
 def open_all(orchestrator_connection: OrchestratorConnection) -> SolteqTandApp:
