@@ -44,7 +44,7 @@ def kill_all(orchestrator_connection: OrchestratorConnection) -> None:
     """Forcefully close all applications used by the robot."""
     orchestrator_connection.log_trace("Killing all applications.")
     list_processes = ['wmic', 'process', 'get', 'description']
-    while 'TMTand.exe' in sp.check_output(list_processes).strip().decode():
+    if 'TMTand.exe' in sp.check_output(list_processes).strip().decode():
         kill_msg = sp.check_output(['taskkill', '/f', '/im', 'TMTand.exe'])
         orchestrator_connection.log_trace(kill_msg)
 

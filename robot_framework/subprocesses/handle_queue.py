@@ -1,5 +1,6 @@
 """Handles queue elements"""
 
+import json
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from OpenOrchestrator.database.queues import QueueElement
 
@@ -20,10 +21,9 @@ from robot_framework.subprocesses.call_database import insert_manual_list
 from robot_framework.subprocesses.generate_queue import get_start_end_dates
 
 
-def get_sql_info(queue_element):
+def get_sql_info(queue_element: QueueElement):
     """Function to get SQL info for manual list from queue element"""
-    import json
-    queue_element.data = json.loads(queue_element.data)
+    queue_element.data = json.loads(queue_element.data) if not isinstance(queue_element.data, dict) else queue_element.data
     sql_info = {
         "name_var": queue_element.data["Navn"],
         "cpr_var": queue_element.data["Cpr"],
