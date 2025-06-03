@@ -1,6 +1,7 @@
 """This module handles resetting the state of the computer so the robot can work with a clean slate."""
 
 import subprocess as sp
+from subprocess import CalledProcessError
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
@@ -45,8 +46,13 @@ def kill_all(orchestrator_connection: OrchestratorConnection) -> None:
     orchestrator_connection.log_trace("Killing all applications.")
     list_processes = ['wmic', 'process', 'get', 'description']
     if 'TMTand.exe' in sp.check_output(list_processes).strip().decode():
-        kill_msg = sp.check_output(['taskkill', '/f', '/im', 'TMTand.exe'])
-        orchestrator_connection.log_trace(kill_msg)
+        try:
+            kill_msg = sp.check_output(['taskkill', '/f', '/im', 'TMTand.exe'])
+            orchestrator_connection.log_trace(kill_msg)
+        except CalledProcessError as e:
+            orchestrator_connection.log_error(
+                f"TMTand.exe found in subprocesses, but error while killing it: {e}"
+            )
 
 
 def open_all(orchestrator_connection: OrchestratorConnection) -> SolteqTandApp:
