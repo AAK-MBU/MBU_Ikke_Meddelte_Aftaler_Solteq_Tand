@@ -103,4 +103,4 @@ def send_manual_list(
         attachments=attachments if attachments else None
     )
 
-    orchestrator_connection.log_trace(f"E-mail med manuel liste ({number_of_rows} rækker) afsendt til {email_recipient}.")
+    orchestrator_connection.log_trace(f"E-mail med manuel liste ({number_of_rows-1} rækker) afsendt til {email_recipient}.")
