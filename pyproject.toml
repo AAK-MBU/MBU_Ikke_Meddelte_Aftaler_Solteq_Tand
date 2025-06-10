@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "itk-dev-shared-components>=2.9.0",
-    "mbu-dev-shared-components>=0.4.2",
+    "mbu-dev-shared-components>=0.4.2, <2.0.0",
     "OpenOrchestrator == 1.*",
     "pandas>=2.2.3",
     "Pillow == 10.*",
