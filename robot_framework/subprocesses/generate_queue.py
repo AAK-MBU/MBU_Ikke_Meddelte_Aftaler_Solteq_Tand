@@ -45,33 +45,38 @@ def generate_queue(
         close_after=True, headers_to_keep=["Navn", "Cpr", "Aftaletype"]
     )
 
-    orchestrator_connection.log_trace(f"{len(appointments)} aftaler hentet")
+    if len(appointments) > 0:
 
-    # Set references
-    references = [
-        (
-            "ikke_meddelte_aftaler_"
-            + f"{start_date.strftime(format='%d%m%y')}_"
-            + f"{end_date.strftime(format='%d%m%y')}_"
-            + f"{j}"
+        orchestrator_connection.log_trace(f"{len(appointments)} aftaler hentet")
+
+        # Set references
+        references = [
+            (
+                "ikke_meddelte_aftaler_"
+                + f"{start_date.strftime(format='%d%m%y')}_"
+                + f"{end_date.strftime(format='%d%m%y')}_"
+                + f"{j}"
+            )
+            for j, _ in enumerate(appointments)
+        ]
+
+        # Prepare appointments for upload
+        appointments = [
+            f'{value}'.replace("\'", "\"") for value in appointments.values()
+        ]
+
+        # Upload to queue
+        orchestrator_connection.bulk_create_queue_elements(
+            queue_name=config.QUEUE_NAME,
+            references=references,
+            data=appointments,
+            created_by="mbu_robot",
         )
-        for j, _ in enumerate(appointments)
-    ]
 
-    # Prepare appointments for upload
-    appointments = [
-        f'{value}'.replace("\'", "\"") for value in appointments.values()
-    ]
+        orchestrator_connection.log_trace("Aftaler sendt til orchestrator kø")
 
-    # Upload to queue
-    orchestrator_connection.bulk_create_queue_elements(
-        queue_name=config.QUEUE_NAME,
-        references=references,
-        data=appointments,
-        created_by="mbu_robot",
-    )
-
-    orchestrator_connection.log_trace("Aftaler sendt til orchestrator kø")
+    else:
+        orchestrator_connection.log_trace("Ingen 'ikke meddelte aftaler fundet")
 
 
 def get_start_end_dates() -> tuple[datetime, datetime]:
