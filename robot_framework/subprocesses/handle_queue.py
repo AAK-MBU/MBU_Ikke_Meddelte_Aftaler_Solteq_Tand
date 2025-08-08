@@ -56,6 +56,16 @@ def process_queue_element(
     except (NotMatchingError, PatientNotFoundError) as e:
         orchestrator_connection.log_error(str(e))
         raise BusinessError from e
+    except TimeoutError as e:
+        missing_contact_info = solteq_app.find_element_by_property(
+            control=solteq_app.app_window,
+            name="Manglende kontaktoplysninger"
+        )
+        if missing_contact_info:
+            sql_info["description_var"] = "Intet telefonnummer knyttet til patienten."
+            raise BusinessError from e
+        else:
+            raise e from e
     except Exception as e:
         orchestrator_connection.log_error(
             "Der skete en fejl da stamkortvinduet ikke blev åbnet som forventet"
