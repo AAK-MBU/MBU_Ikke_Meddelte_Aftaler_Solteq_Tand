@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 import calendar
+import json
 
 from robot_framework import config
 
@@ -47,6 +48,17 @@ def generate_queue(
 
     if len(appointments) > 0:
 
+        list_keys = list(appointments.keys())
+        list_values = list(appointments.values())
+
+        # Remove appointments with no name (seemingly notes put in the aftalebog...)
+        popped = [
+            appointments.pop(list_keys[j]) 
+            for j, v in enumerate(list_values) 
+            if '"Navn": " "' in json.dumps(v)
+        ]
+
+        orchestrator_connection.log_trace(f"{len(popped)} aftaler uden navn fjernet fra listen")
         orchestrator_connection.log_trace(f"{len(appointments)} aftaler hentet")
 
         # Set references
@@ -62,7 +74,7 @@ def generate_queue(
 
         # Prepare appointments for upload
         appointments = [
-            f'{value}'.replace("\'", "\"") for value in appointments.values()
+            json.dumps(value, ensure_ascii=False) for value in appointments.values()
         ]
 
         # Upload to queue
